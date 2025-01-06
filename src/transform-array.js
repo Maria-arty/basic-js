@@ -20,33 +20,43 @@ function transform(arr) {
   const result = [];
   const final = [];
   arr.map((el) => result.push(el)) 
-  console.log(result)
+  let skipNext = false;
   for (let i = 0; i < result.length; i += 1) {
-    if (result[i] === '--discard-next' ) {
-      if (result[i + 1]) {
-        result.splice(i + 1, 1)
+    if (skipNext) {
+      skipNext = false; 
+      continue;
+    }
+    switch (result[i]) {
+      case '--discard-next':
+        if (i < result.length - 1) {
+          skipNext = true;
+        }
+        break;
+      case '--discard-prev':
+        if (i > 0 && result[i - 2] !== '--discard-next') {
+          final.pop(); 
+        }
+        break;
+    
+      case '--double-next':
+        if (i < result.length - 1) {
+          final.push(arr[i + 1]); 
+        }
+        break;
+  
+      case '--double-prev':
+        if (i > 0 && result[i - 2] !== '--discard-next') {
+          final.push(result[i - 1]); 
+        }
+        break;
+  
+      default:
+        final.push(result[i]); 
       }
     }
-    if (result[i] === '--discard-prev' ) {
-      if (result[i - 1]) {
-        final.pop();
-      }
-    }
-    if (result[i] === '--double-next' ) {
-      if (result[i + 1]) {
-        result.splice(i + 1, 0, result[i + 1])
-      }
-    }
-    if (result[i] === '--double-prev' ) {
-      if (result[i - 1]) {
-        final.push(result[i - 1])
-      }
-    } else {
-      final.push(result[i])
-    }
+  
+    return final;
   }
-  return final
-}
 
 module.exports = {
   transform
